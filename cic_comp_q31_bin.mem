@@ -1,0 +1,59 @@
+`timescale 1ns / 1ps
+
+module cic_top#(
+    parameter IW = 1,
+    parameter OW = 16,
+    parameter N =3,
+    parameter DECIMATION_FACTOR = 32
+)(
+    input clk,
+    input rst,
+    input en,
+    input signed [IW-1:0] din,
+    output signed[OW-1:0] dout,
+    output out_ready
+);
+    wire signed [OW-1:0] integrator_out;
+    wire integrator_ready;
+    wire signed [OW-1:0] downsampler_out;
+    wire downsampler_ready;
+    
+    all_integrators #(
+        .IW(IW),
+        .OW(OW),
+        .N(N)
+    ) integrators (
+        .clk(clk),
+        .rst(rst),
+        .en(en),
+        .din(din),
+        .dout(integrator_out),
+        .out_ready(integrator_ready)
+    );
+
+    downsampler #(
+        .W(OW),
+        .DECIMATION_FACTOR(DECIMATION_FACTOR)
+    ) downsampler_inst (
+        .clk(clk),
+        .rst(rst),
+        .en(integrator_ready),
+        .input_data(integrator_out),
+        .output_data(downsampler_out),
+        .out_ready(downsampler_ready)
+    );
+
+    all_combs #(
+        .IW(OW),
+        .OW(OW),
+        .N(N)
+    ) combs (
+        .clk(clk),
+        .rst(rst),
+        .en(downsampler_ready),
+        .din(downsampler_out),
+        .dout(dout),
+        .out_ready(out_ready)
+);
+    
+endmodule
