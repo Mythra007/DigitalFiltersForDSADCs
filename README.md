@@ -1,2 +1,3 @@
 # DigitalFiltersForDSADCs
 Verilog HDL to design 20-bit FIR and CIC filters to create the digital filtration 
+In order to test out the filter designs, open vivado and create a new project, then add the files under "cic", "fir" and "input sources" as design sources and those under "simulation" as simulation sources, since there is only one simulation source, it will set as top by default. Next, select run simulation, obtain the output file (name can be set in testbench code), and use it as input for "fft_gen.m" in MATLAB to obtain PSD plot and SNR.
